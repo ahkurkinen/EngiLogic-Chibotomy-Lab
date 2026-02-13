@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Thai Consonant Drill</title>
+
+  <style>
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:#FFDEEB;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+      padding:20px;
+    }
+
+    .card{
+      width:min(560px, 92vw);
+      background:#ffffff;
+      border-radius:20px;
+      box-shadow:0 20px 50px rgba(0,0,0,.08);
+      padding:28px;
+    }
+
+    h1{
+      text-align:center;
+      font-size:18px;
+      margin-bottom:14px;
+    }
+
+    .hearts{
+      text-align:center;
+      font-size:20px;
+      margin-bottom:12px;
+    }
+
+    .inner-card{
+      background:#ffffff;
+      border-radius:18px;
+      padding:26px 24px 28px;
+      box-shadow:0 14px 34px rgba(0,0,0,.07);
+    }
+
+    .big{
+      font-size:96px;
+      text-align:center;
+      margin:12px 0 20px;
+    }
+
+    .options{
+      margin-top:18px;
+    }
+
+    button{
+      width:100%;
+      padding:14px;
+      margin:8px 0;
+      border:none;
+      border-radius:12px;
+      background:#eef0f3;
+      font-size:16px;
+      cursor:pointer;
+    }
+
+    button.primary{
+      background:#2563eb;
+      color:white;
+    }
+
+    .msg{
+      text-align:center;
+      margin-top:12px;
+      font-size:14px;
+      min-height:24px;
+    }
+
+    .correct{ color:#16a34a; font-weight:700; }
+    .wrong{ color:#dc2626; font-weight:700; }
+
+    .answer{
+      text-align:center;
+      font-weight:600;
+      margin-top:6px;
+    }
+
+    .footer{
+      text-align:center;
+      font-size:12px;
+      color:#6b7280;
+      margin-top:12px;
+    }
+
+    .hidden{ display:none; }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <!-- START SCREEN -->
+  <div id="start">
+    <h1>
+      <span style="color:#d3af37;font-size:14px;">CSII</span><br>
+      <span id="team">Team X</span> presents<br>
+      Thai Consonants
+    </h1>
+    <button class="primary" onclick="startGame()">Start Quiz</button>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quiz" class="hidden">
+    <div id="hearts" class="hearts">💖💖💖</div>
+
+    <div class="inner-card">
+      <h1>Thai Consonant Drill</h1>
+      <div id="char" class="big">ก</div>
+
+      <div class="options">
+        <button onclick="answer(this)"></button>
+        <button onclick="answer(this)"></button>
+        <button onclick="answer(this)"></button>
+      </div>
+
+      <div id="msg" class="msg"></div>
+      <div id="correctAnswer" class="answer hidden"></div>
+      <div id="progress" class="footer"></div>
+    </div>
+  </div>
+
+  <!-- GAME OVER -->
+  <div id="gameover" class="hidden">
+    <h1>Thai Consonant Drill</h1>
+    <div class="big">ฮ</div>
+    <div class="msg wrong">Game Over</div>
+    <button class="primary" onclick="location.reload()">Restart</button>
+  </div>
+
+</div>
+
+<script>
+const TEAM_NAME = "Chibotomy Lab"; // change this
+document.getElementById("team").textContent = TEAM_NAME;
+
+const data = [
+  ["ก","gor gai","ก ไก่"],["ข","khor khai","ข ไข่"],["ฃ","khor khuat","ฃ ขวด"],
+  ["ค","khor khwai","ค ควาย"],["ฅ","khor khon","ฅ คน"],["ฆ","khor ra-khang","ฆ ระฆัง"],
+  ["ง","ngor ngu","ง งู"],["จ","jor jan","จ จาน"],["ฉ","chor ching","ฉ ฉิ่ง"],
+  ["ช","chor chang","ช ช้าง"],["ซ","sor so","ซ โซ่"],["ฌ","chor choe","ฌ เฌอ"],
+  ["ญ","yor ying","ญ หญิง"],["ฎ","dor cha-da","ฎ ชฎา"],["ฏ","tor patak","ฏ ปฏัก"],
+  ["ฐ","thor than","ฐ ฐาน"],["ฑ","thor montho","ฑ มณโฑ"],["ฒ","thor phu-thao","ฒ ผู้เฒ่า"],
+  ["ณ","nor nen","ณ เณร"],["ด","dor dek","ด เด็ก"],["ต","tor tao","ต เต่า"],
+  ["ถ","thor thung","ถ ถุง"],["ท","thor thahan","ท ทหาร"],["ธ","thor thong","ธ ธง"],
+  ["น","nor nu","น หนู"],["บ","bor baimai","บ ใบไม้"],["ป","por pla","ป ปลา"],
+  ["ผ","phor phueng","ผ ผึ้ง"],["ฝ","for fa","ฝ ฝา"],["พ","phor phan","พ พาน"],
+  ["ฟ","for fan","ฟ ฟัน"],["ภ","phor samphao","ภ สำเภา"],["ม","mor ma","ม ม้า"],
+  ["ย","yor yak","ย ยักษ์"],["ร","ror ruea","ร เรือ"],["ล","lor ling","ล ลิง"],
+  ["ว","wor waen","ว แหวน"],["ศ","sor sala","ศ ศาลา"],["ษ","sor ruesi","ษ ฤๅษี"],
+  ["ส","sor suea","ส เสือ"],["ห","hor hip","ห หีบ"],["ฬ","lor chula","ฬ จุฬา"],
+  ["อ","or ang","อ อ่าง"],["ฮ","hor nok-huk","ฮ นกฮูก"]
+];
+
+let hearts = 3;
+let index = 0;
+let order = shuffle([...data]);
+
+const charEl = document.getElementById("char");
+const msgEl = document.getElementById("msg");
+const answerEl = document.getElementById("correctAnswer");
+const heartEl = document.getElementById("hearts");
+const btns = document.querySelectorAll(".options button");
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function startGame(){
+  document.getElementById("start").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+  load();
+}
+
+function load(){
+  msgEl.textContent="";
+  answerEl.classList.add("hidden");
+  heartEl.textContent="💖".repeat(hearts);
+
+  if(index>=order.length){ index=0; }
+
+  const q=order[index];
+  charEl.textContent=q[0];
+
+  const options = shuffle([
+    q[1],
+    ...shuffle(data.map(d=>d[1]).filter(x=>x!==q[1])).slice(0,2)
+  ]);
+
+  btns.forEach((b,i)=>b.textContent=options[i]);
+  document.getElementById("progress").textContent=`Question ${index+1} / 44`;
+}
+
+function answer(btn){
+  const q=order[index];
+  if(btn.textContent===q[1]){
+    msgEl.innerHTML='<span class="correct">✓ Correct</span>';
+    index++;
+    setTimeout(load,600);
+  }else{
+    hearts--;
+    heartEl.textContent="💖".repeat(hearts);
+    msgEl.innerHTML='<span class="wrong">✗ Incorrect</span>';
+    answerEl.textContent=`Correct: ${q[1]} — ${q[2]}`;
+    answerEl.classList.remove("hidden");
+
+    if(hearts<=0){
+      setTimeout(()=>{
+        document.getElementById("quiz").classList.add("hidden");
+        document.getElementById("gameover").classList.remove("hidden");
+      },900);
+    }else{
+      setTimeout(load,1100);
+    }
+  }
+}
+</script>
+
+</body>
+</html>
