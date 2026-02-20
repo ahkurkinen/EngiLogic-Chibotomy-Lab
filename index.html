@@ -128,6 +128,7 @@
       <div id="msg" class="msg"></div>
       <div id="correctAnswer" class="answer hidden"></div>
       <div id="progress" class="footer"></div>
+      <div id="counter" class="footer" style="margin-top:4px;"></div>
     </div>
   </div>
 
@@ -165,13 +166,16 @@ const data = [
 
 let hearts = 3;
 let index = 0;
-let order = shuffle([...data]);
+let known = new Set(); // Track mastered cards
+let remaining = [...data]; // Cards still to learn
+let order = shuffle([...remaining]);
 
 const charEl = document.getElementById("char");
 const msgEl = document.getElementById("msg");
 const answerEl = document.getElementById("correctAnswer");
 const heartEl = document.getElementById("hearts");
 const btns = document.querySelectorAll(".options button");
+const counterEl = document.getElementById("counter");
 
 function shuffle(a){
   for(let i=a.length-1;i>0;i--){
@@ -192,8 +196,24 @@ function load(){
   answerEl.classList.add("hidden");
   heartEl.textContent="💖".repeat(hearts);
 
-  if(index>=order.length){ index=0; }
+  // Filter out known cards from available questions
+  order = shuffle(remaining.filter(card => !known.has(card[0])));
+  
+  if(order.length === 0){
+    // All cards mastered - congratulations!
+    msgEl.innerHTML='<span class="correct">🎉 All cards mastered!</span>';
+    counterEl.textContent=`Completed: ${known.size} / 44`;
+    setTimeout(()=>{
+      document.getElementById("quiz").classList.add("hidden");
+      document.getElementById("gameover").classList.remove("hidden");
+      document.querySelector(".msg.wrong").textContent="All Mastered!";
+      document.querySelector(".msg.wrong").classList.remove("wrong");
+      document.querySelector(".msg.wrong").classList.add("correct");
+    },1500);
+    return;
+  }
 
+  index = 0;
   const q=order[index];
   charEl.textContent=q[0];
 
@@ -203,14 +223,15 @@ function load(){
   ]);
 
   btns.forEach((b,i)=>b.textContent=options[i]);
-  document.getElementById("progress").textContent=`Question ${index+1} / 44`;
+  document.getElementById("progress").textContent=`Question ${index+1} / ${order.length}`;
+  counterEl.textContent=`Mastered: ${known.size} / 44`;
 }
 
 function answer(btn){
   const q=order[index];
   if(btn.textContent===q[1]){
     msgEl.innerHTML='<span class="correct">✓ Correct</span>';
-    index++;
+    known.add(q[0]); // Mark card as mastered
     setTimeout(load,600);
   }else{
     hearts--;
