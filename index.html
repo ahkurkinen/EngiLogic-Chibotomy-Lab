@@ -191,15 +191,26 @@ function shuffle(a){
   return a;
 }
 
-function startGame(){
+async function startGame(){
   const nicknameInput = document.getElementById("nickname");
   nickname = nicknameInput.value.trim() || "Anonymous";
-  document.getElementById("nickname-display").textContent = `Welcome, ${nickname}!`;
+  try {
+    const response = await fetch('https://engilogic-chibotomy-lab-service.onrender.com/api/quiz/start', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({nickname})
+    });
+    const data = await response.json();
+    const counter = data.counter;
+    document.getElementById("nickname-display").textContent = `Welcome, ${nickname}! (starts: ${counter})`;
+  } catch (error) {
+    console.error('Error starting quiz:', error);
+    document.getElementById("nickname-display").textContent = `Welcome, ${nickname}!`;
+  }
   document.getElementById("start").classList.add("hidden");
   document.getElementById("quiz").classList.remove("hidden");
   load();
 }
-
 function load(){
   msgEl.textContent="";
   answerEl.classList.add("hidden");
