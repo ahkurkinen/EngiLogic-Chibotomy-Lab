@@ -3,6 +3,7 @@ from sqlalchemy import create_engine, Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 import os
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost/dbname")
@@ -17,13 +18,11 @@ class User(Base):
     nickname = Column(String, primary_key=True, index=True)
     counter = Column(Integer, default=0)
 
+app = FastAPI()
+
 @app.on_event("startup")
 def startup():
     Base.metadata.create_all(bind=engine)
-
-app = FastAPI()
-
-from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
     CORSMiddleware,
