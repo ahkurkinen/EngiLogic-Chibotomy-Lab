@@ -17,7 +17,9 @@ class User(Base):
     nickname = Column(String, primary_key=True, index=True)
     counter = Column(Integer, default=0)
 
-Base.metadata.create_all(bind=engine)
+@app.on_event("startup")
+def startup():
+    Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
